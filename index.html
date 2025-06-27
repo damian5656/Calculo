@@ -246,6 +246,9 @@
             .container {
                 padding: 25px 20px;
             }
+            h2 {
+                font-size: 1.5rem; /* Ajustar el tamaño del título para móviles */
+            }
             #question {
                 font-size: 1.2rem;
             }
@@ -257,21 +260,25 @@
                 font-size: 1.1rem;
                 padding: 12px 30px;
             }
+            #player-greeting {
+                font-size: 1.2rem; /* Ajustar tamaño del saludo para móviles */
+            }
+            #score-container {
+                font-size: 1.5rem; /* Ajustar tamaño del puntaje final */
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
 
-        <!-- Pantalla de inicio -->
         <div id="start-container">
             <h2>Bienvenido al Quiz de Sucesiones</h2>
-            <input type="text" id="player-name" placeholder="Ingresa tu nombre" />
-            <span id="name-error" class="hidden"></span>
+            <input type="text" id="player-name" placeholder="Ingresa tu nombre" aria-label="Ingresa tu nombre" />
+            <span id="name-error" class="hidden" role="alert" aria-live="polite"></span>
             <button id="start-button">Comenzar</button>
         </div>
 
-        <!-- Contenedor del quiz -->
         <div id="quiz-container" class="hidden">
             <div id="player-greeting"></div>
             <div id="question"></div>
@@ -279,7 +286,6 @@
             <button id="next-button" disabled>Siguiente</button>
         </div>
 
-        <!-- Pantalla de puntaje final -->
         <div id="score-container" class="hidden">
             <p>¡Felicidades, <span id="final-name"></span>!</p>
             <p>Tu puntuación fue: <span id="score"></span></p>
@@ -296,7 +302,7 @@
 
         const startButton = document.getElementById("start-button");
         const playerNameInput = document.getElementById("player-name");
-        const nameError = document.getElementById("name-error"); // Elemento para el mensaje de error
+        const nameError = document.getElementById("name-error");
         const playerGreeting = document.getElementById("player-greeting");
         const finalName = document.getElementById("final-name");
 
@@ -304,131 +310,132 @@
         const optionsElement = document.getElementById("options");
         const nextButton = document.getElementById("next-button");
         const scoreDisplay = document.getElementById("score");
-        const restartButton = document.getElementById("restart-button"); // Nuevo botón de reiniciar
+        const restartButton = document.getElementById("restart-button");
 
         // --- Variables del juego ---
         let playerName = "";
-        let currentQuestionIndex = 0; // Cambiado a 'currentQuestionIndex' para mayor claridad
+        let currentQuestionIndex = 0;
         let score = 0;
         let questions = []; // Se cargará dinámicamente
 
         // --- Preguntas del Quiz ---
-const allQuestions = [
-    {
-        question: "Dada la sucesión aritmética 2, 4, 6, 8,... determina el término aₙ y luego encuentra a₁₀₀.",
-        options: ["a₁₀₀ = 198", "a₁₀₀ = 200", "a₁₀₀ = 202", "a₁₀₀ = 100"],
-        answer: "a₁₀₀ = 200",
-        rationale: "La fórmula es aₙ = 2n, entonces a₁₀₀ = 2 × 100 = 200."
-    },
-    {
-        question: "Dada la sucesión 5, 6, 7, 8,... determina una expresión general y verifica si el valor 100 pertenece a ella.",
-        options: ["Sí, para n = 95", "Sí, para n = 96", "No pertenece", "Sí, para n = 94"],
-        answer: "Sí, para n = 96",
-        rationale: "La fórmula es aₙ = n + 4. Si 100 = n + 4 → n = 96."
-    },
-    {
-        question: "Dada la sucesión 1, -1, 1, -1,... ¿cuál es su término general? ¿Y cuál es el valor de a₁₀₁?",
-        options: ["a₁₀₁ = 1", "a₁₀₁ = -1", "a₁₀₁ = 0", "a₁₀₁ = 2"],
-        answer: "a₁₀₁ = 1",
-        rationale: "aₙ = (-1)^(n+1), entonces a₁₀₁ = (-1)^102 = 1."
-    },
-    {
-        question: "Sea a₁ = 1 y aₙ = aₙ₋₁ + 2. Determina una fórmula cerrada para aₙ y calcula a₅₀.",
-        options: ["a₅₀ = 99", "a₅₀ = 101", "a₅₀ = 100", "a₅₀ = 98"],
-        answer: "a₅₀ = 99",
-        rationale: "Es una sucesión aritmética: aₙ = 2n - 1, entonces a₅₀ = 2×50 - 1 = 99."
-    },
-    {
-        question: "Si a₁ = 2 y aₙ = 2 * aₙ₋₁ para n>1, ¿cuál es el tercer término (a₃)?",
-        options: ["a₃ = 16", "a₃ = 8", "a₃ = 10", "a₃ = 6"],
-        answer: "a₃ = 8",
-        rationale: "Dado a₁=2 y aₙ = 2 * aₙ₋₁, entonces a₂ = 2 * a₁ = 2 * 2 = 4, y a₃ = 2 * a₂ = 2 * 4 = 8."
-    },
-    {
-        question: "La sucesión 1, 2, 3, ..., 10 es una sucesión finita. ¿Está acotada?",
-        options: ["Sí, está acotada superiormente por 10 e inferiormente por 1.", "No, no está acotada superiormente.", "No, no está acotada inferiormente.", "Solo está acotada superiormente."],
-        answer: "Sí, está acotada superiormente por 10 e inferiormente por 1.",
-        rationale: "Todos los términos de la sucesión 1,2,3,...,10 están entre 1 y 10, por lo que es acotada."
-    },
-    {
-        question: "Considera la sucesión definida por an = 1/n. ¿Está acotada?",
-        options: ["Sí, está acotada superiormente por 1 e inferiormente por 0.", "No, no está acotada superiormente.", "No, no está acotada inferiormente.", "Solo está acotada inferiormente."],
-        answer: "Sí, está acotada superiormente por 1 e inferiormente por 0.",
-        rationale: "Todos los términos 1/n están entre 0 (no incluido) y 1 (incluido a₁=1), por lo que es acotada."
-    },
-    {
-        question: "La sucesión -2, 2, -2, 2, ... ¿Está acotada?",
-        options: ["Sí, está acotada superiormente por 2 e inferiormente por -2.", "No, no está acotada superiormente.", "No, no está acotada inferiormente.", "Solo está acotada superiormente."],
-        answer: "Sí, está acotada superiormente por 2 e inferiormente por -2.",
-        rationale: "Los valores de la sucesión oscilan entre -2 y 2, por lo que tiene límites superiores e inferiores definidos."
-    },
-    {
-        question: "Clasifica la sucesión 10, 8, 6, 4, ...",
-        options: ["Creciente", "Decreciente", "Monótona pero no estrictamente creciente ni decreciente", "No monótona"],
-        answer: "Decreciente",
-        rationale: "Cada término es menor que el anterior (aₙ₊₁ < aₙ)."
-    },
-    {
-        question: "Clasifica la sucesión 1, 3, 5, 7, ...",
-        options: ["Creciente", "Decreciente", "Monótona pero no estrictamente creciente ni decreciente", "No monótona"],
-        answer: "Creciente",
-        rationale: "Cada término es mayor o igual que el anterior (aₙ₊₁ ≥ aₙ)."
-    },
-    {
-        question: "Clasifica la sucesión 2, -2, 2, -2, ...",
-        options: ["Creciente", "Decreciente", "No monótona", "Monótona decreciente"],
-        answer: "No monótona",
-        rationale: "La sucesión alterna entre valores positivos y negativos, por lo que no es ni creciente ni decreciente de forma consistente."
-    },
-    {
-        question: "Para la sucesión definida por aₙ = 2n - 1, calcula la suma de los primeros 10 términos.",
-        options: ["S = 100", "S = 81", "S = 90", "S = 99"],
-        answer: "S = 100",
-        rationale: "Los primeros 10 términos son una PA con a₁ = 1, d = 2. S = n(a₁ + aₙ)/2 = 10(1 + 19)/2 = 100."
-    },
-    {
-        question: "Calcula la suma de los primeros 3 términos de la sucesión an = 3n.",
-        options: ["3, 6, 9", "3, 5, 7", "1, 2, 3", "0, 3, 6"],
-        answer: "3, 6, 9",
-        rationale: "Para n=1, a₁ = 3(1)=3. Para n=2, a₂ = 3(2)=6. Para n=3, a₃ = 3(3)=9."
-    },
-    {
-        question: "¿Cuál es el término general de la progresión geométrica 1, 2, 4, 8, ...?",
-        options: ["an = 2n", "an = 2^(n-1)", "an = n+1", "an = 2n-1"],
-        answer: "an = 2^(n-1)",
-        rationale: "Es una progresión geométrica con a₁=1 y razón r=2. aₙ = a₁ ⋅ r^(n-1) = 1 ⋅ 2^(n-1)."
-    },
-    {
-        question: "Calcula la suma de los primeros 3 términos de la progresión aritmética 2, 4, 6, 8, ....",
-        options: ["S₃ = 10", "S₃ = 12", "S₃ = 8", "S₃ = 6"],
-        answer: "S₃ = 12",
-        rationale: "Los primeros tres términos son 2, 4 y 6. La suma es 2+4+6=12."
-    },
-    {
-        question: "El término general de la progresión aritmética 5, 8, 11, 14, ... es:",
-        options: ["an = 5+(n-1)3", "an = 3n+2", "an = 3n", "an = 5n"],
-        answer: "an = 5+(n-1)3",
-        rationale: "La fórmula del término general de una PA es aₙ = a₁ + (n-1)d. Aquí a₁=5 y la diferencia d=3."
-    },
-    {
-        question: "¿Cuál es el límite de la sucesión an = 1/n cuando n tiende a infinito?",
-        options: ["0", "1", "Infinito", "No existe"],
-        answer: "0",
-        rationale: "A medida que n se hace muy grande, 1/n se acerca a 0."
-    },
-    {
-        question: "Determina el límite de la sucesión an = 5 cuando n tiende a infinito.",
-        options: ["0", "5", "Infinito", "No existe"],
-        answer: "5",
-        rationale: "El límite de una sucesión constante es el valor de la constante."
-    },
-    {
-        question: "¿Cuál es el límite de la sucesión an = (n+1)/(2n-1) cuando n tiende a infinito?",
-        options: ["0", "1/2", "Infinito", "No existe"],
-        answer: "1/2",
-        rationale: "Cuando n tiende a infinito, los términos dominantes en el numerador y denominador son n. Por lo tanto, el límite es el cociente de los coeficientes de n, que es 1/2."
-    }
-];
+        const allQuestions = [
+            {
+                question: "Dada la sucesión aritmética 2, 4, 6, 8,... determina el término $a_n$ y luego encuentra $a_{100}$.",
+                options: ["$a_{100} = 198$", "$a_{100} = 200$", "$a_{100} = 202$", "$a_{100} = 100$"],
+                answer: "$a_{100} = 200$",
+                rationale: "La fórmula es $a_n = 2n$, entonces $a_{100} = 2 \\times 100 = 200$."
+            },
+            {
+                question: "Dada la sucesión 5, 6, 7, 8,... determina una expresión general y verifica si el valor 100 pertenece a ella.",
+                options: ["Sí, para n = 95", "Sí, para n = 96", "No pertenece", "Sí, para n = 94"],
+                answer: "Sí, para n = 96",
+                rationale: "La fórmula es $a_n = n + 4$. Si $100 = n + 4 \\rightarrow n = 96$."
+            },
+            {
+                question: "Dada la sucesión 1, -1, 1, -1,... ¿cuál es su término general? ¿Y cuál es el valor de $a_{101}$?",
+                options: ["$a_{101} = 1$", "$a_{101} = -1$", "$a_{101} = 0$", "$a_{101} = 2$"],
+                answer: "$a_{101} = 1$",
+                rationale: "$a_n = (-1)^{n+1}$, entonces $a_{101} = (-1)^{102} = 1$."
+            },
+            {
+                question: "Sea $a_1 = 1$ y $a_n = a_{n-1} + 2$. Determina una fórmula cerrada para $a_n$ y calcula $a_{50}$.",
+                options: ["$a_{50} = 99$", "$a_{50} = 101$", "$a_{50} = 100$", "$a_{50} = 98$"],
+                answer: "$a_{50} = 99$",
+                rationale: "Es una sucesión aritmética: $a_n = 2n - 1$, entonces $a_{50} = 2 \\times 50 - 1 = 99$."
+            },
+            {
+                question: "Si $a_1 = 2$ y $a_n = 2 \\cdot a_{n-1}$ para n>1, ¿cuál es el tercer término ($a_3$)?",
+                options: ["$a_3 = 16$", "$a_3 = 8$", "$a_3 = 10$", "$a_3 = 6$"],
+                answer: "$a_3 = 8$",
+                rationale: "Dado $a_1=2$ y $a_n = 2 \\cdot a_{n-1}$, entonces $a_2 = 2 \\cdot a_1 = 2 \\cdot 2 = 4$, y $a_3 = 2 \\cdot a_2 = 2 \\cdot 4 = 8$."
+            },
+            {
+                question: "La sucesión 1, 2, 3, ..., 10 es una sucesión finita. ¿Está acotada?",
+                options: ["Sí, está acotada superiormente por 10 e inferiormente por 1.", "No, no está acotada superiormente.", "No, no está acotada inferiormente.", "Solo está acotada superiormente."],
+                answer: "Sí, está acotada superiormente por 10 e inferiormente por 1.",
+                rationale: "Todos los términos de la sucesión 1,2,3,...,10 están entre 1 y 10, por lo que es acotada."
+            },
+            {
+                question: "Considera la sucesión definida por $a_n = 1/n$. ¿Está acotada?",
+                options: ["Sí, está acotada superiormente por 1 e inferiormente por 0.", "No, no está acotada superiormente.", "No, no está acotada inferiormente.", "Solo está acotada inferiormente."],
+                answer: "Sí, está acotada superiormente por 1 e inferiormente por 0.",
+                rationale: "Todos los términos $1/n$ están entre 0 (no incluido) y 1 (incluido $a_1=1$), por lo que es acotada."
+            },
+            {
+                question: "La sucesión -2, 2, -2, 2, ... ¿Está acotada?",
+                options: ["Sí, está acotada superiormente por 2 e inferiormente por -2.", "No, no está acotada superiormente.", "No, no está acotada inferiormente.", "Solo está acotada superiormente."],
+                answer: "Sí, está acotada superiormente por 2 e inferiormente por -2.",
+                rationale: "Los valores de la sucesión oscilan entre -2 y 2, por lo que tiene límites superiores e inferiores definidos."
+            },
+            {
+                question: "Clasifica la sucesión 10, 8, 6, 4, ...",
+                options: ["Creciente", "Decreciente", "Monótona pero no estrictamente creciente ni decreciente", "No monótona"],
+                answer: "Decreciente",
+                rationale: "Cada término es menor que el anterior ($a_{n+1} < a_n$)."
+            },
+            {
+                question: "Clasifica la sucesión 1, 3, 5, 7, ...",
+                options: ["Creciente", "Decreciente", "Monótona pero no estrictamente creciente ni decreciente", "No monótona"],
+                answer: "Creciente",
+                rationale: "Cada término es mayor o igual que el anterior ($a_{n+1} \\geq a_n$)."
+            },
+            {
+                question: "Clasifica la sucesión 2, -2, 2, -2, ...",
+                options: ["Creciente", "Decreciente", "No monótona", "Monótona decreciente"],
+                answer: "No monótona",
+                rationale: "La sucesión alterna entre valores positivos y negativos, por lo que no es ni creciente ni decreciente de forma consistente."
+            },
+            {
+                question: "Para la sucesión definida por $a_n = 2n - 1$, calcula la suma de los primeros 10 términos.",
+                options: ["S = 100", "S = 81", "S = 90", "S = 99"],
+                answer: "S = 100",
+                rationale: "Los primeros 10 términos son una PA con $a_1 = 1$, d = 2. S = $n(a_1 + a_n)/2 = 10(1 + 19)/2 = 100$."
+            },
+            {
+                question: "Calcula la suma de los primeros 3 términos de la sucesión $a_n = 3n$.",
+                options: ["3, 6, 9", "3, 5, 7", "1, 2, 3", "0, 3, 6"],
+                answer: "3, 6, 9",
+                rationale: "Para n=1, $a_1 = 3(1)=3$. Para n=2, $a_2 = 3(2)=6$. Para n=3, $a_3 = 3(3)=9$."
+            },
+            {
+                question: "¿Cuál es el término general de la progresión geométrica 1, 2, 4, 8, ...?",
+                options: ["$a_n = 2n$", "$a_n = 2^{n-1}$", "$a_n = n+1$", "$a_n = 2n-1$"],
+                answer: "$a_n = 2^{n-1}$",
+                rationale: "Es una progresión geométrica con $a_1=1$ y razón r=2. $a_n = a_1 \\cdot r^{n-1} = 1 \\cdot 2^{n-1}$."
+            },
+            {
+                question: "Calcula la suma de los primeros 3 términos de la progresión aritmética 2, 4, 6, 8, ....",
+                options: ["$S_3 = 10$", "$S_3 = 12$", "$S_3 = 8$", "$S_3 = 6$"],
+                answer: "$S_3 = 12$",
+                rationale: "Los primeros tres términos son 2, 4 y 6. La suma es $2+4+6=12$."
+            },
+            {
+                question: "El término general de la progresión aritmética 5, 8, 11, 14, ... es:",
+                options: ["$a_n = 5+(n-1)3$", "$a_n = 3n+2$", "$a_n = 3n$", "$a_n = 5n$"],
+                answer: "$a_n = 5+(n-1)3$",
+                rationale: "La fórmula del término general de una PA es $a_n = a_1 + (n-1)d$. Aquí $a_1=5$ y la diferencia d=3."
+            },
+            {
+                question: "¿Cuál es el límite de la sucesión $a_n = 1/n$ cuando n tiende a infinito?",
+                options: ["0", "1", "Infinito", "No existe"],
+                answer: "0",
+                rationale: "A medida que n se hace muy grande, $1/n$ se acerca a 0."
+            },
+            {
+                question: "Determina el límite de la sucesión $a_n = 5$ cuando n tiende a infinito.",
+                options: ["0", "5", "Infinito", "No existe"],
+                answer: "5",
+                rationale: "El límite de una sucesión constante es el valor de la constante."
+            },
+            {
+                question: "¿Cuál es el límite de la sucesión $a_n = (n+1)/(2n-1)$ cuando n tiende a infinito?",
+                options: ["0", "1/2", "Infinito", "No existe"],
+                answer: "1/2",
+                rationale: "Cuando n tiende a infinito, los términos dominantes en el numerador y denominador son n. Por lo tanto, el límite es el cociente de los coeficientes de n, que es 1/2."
+            }
+        ];
+
         // --- Funciones del Juego ---
 
         /**
@@ -443,6 +450,9 @@ const allQuestions = [
             startContainer.classList.remove("hidden");
             quizContainer.classList.add("hidden");
             scoreContainer.classList.add("hidden");
+            nextButton.disabled = true; // Asegurarse de que el botón Siguiente esté deshabilitado al inicio
+            nextButton.textContent = "Siguiente"; // Resetear texto del botón por si fue "Finalizar"
+            playerNameInput.focus(); // Poner el foco en el input del nombre
         }
 
         /**
@@ -450,27 +460,34 @@ const allQuestions = [
          */
         startButton.addEventListener("click", () => {
             const name = playerNameInput.value.trim();
-            if (name !== "") {
+            if (name.length >= 3) { // Validar nombre con al menos 3 caracteres
                 playerName = name;
-                nameError.classList.add("hidden"); // Ocultar el error si se ingresó nombre
+                nameError.classList.add("hidden");
                 startContainer.classList.add("hidden");
                 quizContainer.classList.remove("hidden");
                 playerGreeting.textContent = `¡Buena suerte, ${playerName}!`;
                 shuffleQuestions(); // Mezclar las preguntas al iniciar
                 loadQuestion();
             } else {
-                nameError.textContent = "¡Necesitas un nombre para comenzar!"; // Mostrar mensaje de error
+                nameError.textContent = "¡Tu nombre debe tener al menos 3 caracteres!";
                 nameError.classList.remove("hidden");
-                playerNameInput.focus(); // Poner el foco en el input
+                playerNameInput.focus();
             }
         });
+
+        // Permitir iniciar con Enter en el campo de nombre
+        playerNameInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                startButton.click();
+            }
+        });
+
 
         /**
          * Carga la pregunta actual en la interfaz del quiz.
          */
         function loadQuestion() {
-            // Ocultar mensaje de error de nombre si aún está visible (por si acaso)
-            nameError.classList.add("hidden");
+            nameError.classList.add("hidden"); // Ocultar mensaje de error de nombre si aún está visible (por si acaso)
             const q = questions[currentQuestionIndex];
             questionElement.textContent = q.question;
             optionsElement.innerHTML = ""; // Limpiar opciones anteriores
@@ -482,12 +499,17 @@ const allQuestions = [
                 const btn = document.createElement("button");
                 btn.textContent = option;
                 btn.classList.add("option-button");
-                // Pasa la función como referencia y los argumentos que necesita
                 btn.addEventListener("click", () => selectAnswer(btn, q.answer));
                 optionsElement.appendChild(btn);
             });
 
             nextButton.disabled = true; // Deshabilitar botón Siguiente hasta que se elija una respuesta
+            // Actualizar texto del botón Siguiente/Finalizar
+            if (currentQuestionIndex === questions.length - 1) {
+                nextButton.textContent = "Finalizar Quiz";
+            } else {
+                nextButton.textContent = "Siguiente";
+            }
         }
 
         /**
@@ -513,7 +535,9 @@ const allQuestions = [
             }
 
             nextButton.disabled = false; // Habilitar botón Siguiente
-            nextButton.focus(); // Poner el foco en el botón Siguiente para accesibilidad
+            setTimeout(() => { // Pequeño retraso para que el usuario vea la respuesta antes de pasar
+                nextButton.focus(); // Poner el foco en el botón Siguiente para accesibilidad
+            }, 300);
         }
 
         /**
@@ -536,6 +560,7 @@ const allQuestions = [
             scoreContainer.classList.remove("hidden");
             scoreDisplay.textContent = `${score} / ${questions.length}`;
             finalName.textContent = playerName;
+            restartButton.focus(); // Poner el foco en el botón de reiniciar
         }
 
         /**
