@@ -313,30 +313,30 @@
         let questions = []; // Se cargará dinámicamente
 
         // --- Preguntas del Quiz ---
-         const allQuestions = [
+const allQuestions = [
     {
-        question: "¿Cuál es el término general de la sucesión 2, 4, 6, 8, ...?",
-        options: ["an = n+1", "an = 2n", "an = n²", "an = 2n-1"],
-        answer: "an = 2n",
-        rationale: "Sustituyendo n por 1, 2, 3, etc., obtenemos 2, 4, 6, etc., que son los términos de la sucesión."
+        question: "Dada la sucesión aritmética 2, 4, 6, 8,... determina el término aₙ y luego encuentra a₁₀₀.",
+        options: ["a₁₀₀ = 198", "a₁₀₀ = 200", "a₁₀₀ = 202", "a₁₀₀ = 100"],
+        answer: "a₁₀₀ = 200",
+        rationale: "La fórmula es aₙ = 2n, entonces a₁₀₀ = 2 × 100 = 200."
     },
     {
-        question: "Encuentra el término general de la sucesión 5, 6, 7, 8, ...",
-        options: ["an = 3n", "an = n+4", "an = 4n+1", "an = 5n"],
-        answer: "an = n+4",
-        rationale: "Al sustituir n por 1, 2, 3, etc., obtenemos 5, 6, 7, etc., que son los términos dados."
+        question: "Dada la sucesión 5, 6, 7, 8,... determina una expresión general y verifica si el valor 100 pertenece a ella.",
+        options: ["Sí, para n = 95", "Sí, para n = 96", "No pertenece", "Sí, para n = 94"],
+        answer: "Sí, para n = 96",
+        rationale: "La fórmula es aₙ = n + 4. Si 100 = n + 4 → n = 96."
     },
     {
-        question: "Determina el término general de la sucesión 1, -1, 1, -1, ...",
-        options: ["an = (-1)^n", "an = (-1)^(n+1)", "an = (-1)^n * n", "an = 1-n"],
-        answer: "an = (-1)^(n+1)",
-        rationale: "Cuando n es impar, n+1 es par, resultando en 1. Cuando n es par, n+1 es impar, resultando en -1. Esto coincide con la sucesión."
+        question: "Dada la sucesión 1, -1, 1, -1,... ¿cuál es su término general? ¿Y cuál es el valor de a₁₀₁?",
+        options: ["a₁₀₁ = 1", "a₁₀₁ = -1", "a₁₀₁ = 0", "a₁₀₁ = 2"],
+        answer: "a₁₀₁ = 1",
+        rationale: "aₙ = (-1)^(n+1), entonces a₁₀₁ = (-1)^102 = 1."
     },
     {
-        question: "Si una sucesión se define por a₁ = 1 y aₙ = aₙ₋₁ + 2 para n>1, ¿cuál es el tercer término (a₃)?",
-        options: ["a₃ = 5", "a₃ = 6", "a₃ = 4", "a₃ = 7"],
-        answer: "a₃ = 5",
-        rationale: "Si a₁=1 y aₙ = aₙ₋₁ + 2, entonces a₂ = a₁ + 2 = 1+2=3 y a₃ = a₂ + 2 = 3+2=5."
+        question: "Sea a₁ = 1 y aₙ = aₙ₋₁ + 2. Determina una fórmula cerrada para aₙ y calcula a₅₀.",
+        options: ["a₅₀ = 99", "a₅₀ = 101", "a₅₀ = 100", "a₅₀ = 98"],
+        answer: "a₅₀ = 99",
+        rationale: "Es una sucesión aritmética: aₙ = 2n - 1, entonces a₅₀ = 2×50 - 1 = 99."
     },
     {
         question: "Si a₁ = 2 y aₙ = 2 * aₙ₋₁ para n>1, ¿cuál es el tercer término (a₃)?",
@@ -381,19 +381,13 @@
         rationale: "La sucesión alterna entre valores positivos y negativos, por lo que no es ni creciente ni decreciente de forma consistente."
     },
     {
-        question: "Encuentra los primeros tres términos de la sucesión con término general an = n² + 1.",
-        options: ["1, 2, 3", "2, 5, 10", "1, 4, 9", "0, 3, 8"],
-        answer: "2, 5, 10",
-        rationale: "Para n=1, a₁ = 1² + 1 = 2. Para n=2, a₂ = 2² + 1 = 5. Para n=3, a₃ = 3² + 1 = 10."
+        question: "Para la sucesión definida por aₙ = 2n - 1, calcula la suma de los primeros 10 términos.",
+        options: ["S = 100", "S = 81", "S = 90", "S = 99"],
+        answer: "S = 100",
+        rationale: "Los primeros 10 términos son una PA con a₁ = 1, d = 2. S = n(a₁ + aₙ)/2 = 10(1 + 19)/2 = 100."
     },
     {
-        question: "¿Cuáles son los primeros tres términos de la sucesión an = 2n - 1?",
-        options: ["1, 3, 5", "2, 4, 6", "0, 2, 4", "3, 5, 7"],
-        answer: "1, 3, 5",
-        rationale: "Al sustituir n=1, 2, 3, obtenemos a₁ = 2(1)-1=1, a₂ = 2(2)-1=3, a₃ = 2(3)-1=5."
-    },
-    {
-        question: "Calcula los primeros tres términos de la sucesión an = 3n.",
+        question: "Calcula la suma de los primeros 3 términos de la sucesión an = 3n.",
         options: ["3, 6, 9", "3, 5, 7", "1, 2, 3", "0, 3, 6"],
         answer: "3, 6, 9",
         rationale: "Para n=1, a₁ = 3(1)=3. Para n=2, a₂ = 3(2)=6. Para n=3, a₃ = 3(3)=9."
